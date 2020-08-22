@@ -1,0 +1,24 @@
+{
+  "options": {
+    "original_lang": "Dutch",
+    "translated_lang": "Spanish"
+  },
+  "words": [
+    {
+      "original": "hallo",
+      "translation": "hola"
+    },
+    {
+      "original": "eten",
+      "translation": "comer"
+    },
+    {
+      "original": "programmeren",
+      "translation": "programacion"
+    },
+    {
+      "original": "lezen",
+      "translation": "leer"
+    }
+  ]
+}
