@@ -9,7 +9,17 @@ class Word():
         self.state = 'Unseen'
         self.in_sprint = False
 
-class Questions():
+class Vocabulary():
+
+    def __init__(self):
+        self.file_loc = './wordsets/lasalud.json'
+
+        self.sprint_length = 10
+        self.words = self.create_words(json.loads(load_file(self.file_loc)))
+
+        self.sprint = []
+        self.active = []
+
     @staticmethod
     def create_words(words_dict):
         out = []
@@ -19,10 +29,9 @@ class Questions():
 
         return out
 
-    @staticmethod
-    def generate_state_dict(words):
+    def generate_state_dict(self):
         states = {}
-        for i in words:
+        for i in self.words:
             if i.state in states:
                 states[i.state].append(i)
             else:
@@ -30,18 +39,19 @@ class Questions():
 
         return states
 
-    @staticmethod
-    def generate_sprint_list(words):
+    def generate_sprint_list(self):
         sprint = []
-        for i in words:
+        for i in self.words:
             if i.in_sprint:
                 sprint.append(i)
 
         return sprint
 
-    @staticmethod
-    def update_sprint(words, sprint):
-        pass
+    def update_sprint(self):
+        for i in range(self.sprint_length - len(self.sprint)):
+            self.generate_state_dict()["Unseen"][i].in_sprint = True
+            self.sprint.append(self.generate_state_dict()["Unseen"][i])
+            
 
 
 def load_file(file_loc):
@@ -51,12 +61,10 @@ def load_file(file_loc):
 
 
 def main():
-    words_dict = json.loads(load_file('./wordsets/spanish-dutch_test.json'))
-    words = Questions.create_words(words_dict)
-    words[1].state = 'Seen'
-    words[3].in_sprint = True
-    print(Questions.generate_state_dict(words))
-    print(Questions.generate_sprint_list(words))
+    voc = Vocabulary()
+    voc.update_sprint()
+    for i in voc.sprint:
+        print(i.__dict__)
 
 if __name__ == "__main__":
     main()
