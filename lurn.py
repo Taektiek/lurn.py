@@ -115,7 +115,7 @@ def load_file(file_loc):
 
 
 def main():
-    voc = Vocabulary('./wordsets/lasalud.json', 3)
+    voc = Vocabulary('./wordsets/english-dutch.json', 5)
     for i in range(100):
         print(f'Round {i+1}')
         voc.update_sprint()
