@@ -80,7 +80,12 @@ class Vocabulary():
         Returns:
             str: returns the given answer
         """
-        return input(self.active[number].original + ': ')
+        if self.active[number].state == "Unseen":
+            return input(self.active[number].original + ': ')
+        elif self.active[number].state == "Seen":
+            return input(self.active[number].translation + ': ')
+        elif self.active[number].state == "Learned":
+            return input(self.active[number].translation + ': ')
          
     def check_answer(self, answer, given):
         """Checks if the given answer is correct
@@ -92,12 +97,22 @@ class Vocabulary():
         Returns:
             str: String for the user to let them know what happened
         """
-        if answer.translation.lower() == given.lower():
-            answer.state = 'Seen'
-            self.sprint.remove(answer)
-            return 'Correct'
-        else:
-            return f'Wrong the correct answer was: {answer.translation}'
+        if answer.state == 'Unseen':
+            if answer.translation.lower() == given.lower():
+                answer.state = 'Seen'
+                return f'Correct the word is now {answer.state}'
+            else:
+                return f'Wrong the correct answer was: {answer.translation}'
+        if answer.state == 'Seen' or answer.state == 'Known':
+            if answer.original.lower() == given.lower():
+                if answer.state == 'Seen':
+                    answer.state = 'Known'
+                else:
+                    answer.state = 'Learned'
+                    self.sprint.remove(answer)
+                return f'Correct the word is now {answer.state}'
+            else:
+                return f'Wrong the correct answer was: {answer.original}'
 
 
 def load_file(file_loc):
