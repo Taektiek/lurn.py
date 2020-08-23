@@ -1,4 +1,5 @@
 import json
+import random
 
 class Word():
     
@@ -39,18 +40,13 @@ class Vocabulary():
 
         return states
 
-    def generate_sprint_list(self):
-        sprint = []
-        for i in self.words:
-            if i.in_sprint:
-                sprint.append(i)
-
-        return sprint
-
     def update_sprint(self):
-        for i in range(self.sprint_length - len(self.sprint)):
-            self.generate_state_dict()["Unseen"][i].in_sprint = True
-            self.sprint.append(self.generate_state_dict()["Unseen"][i])
+        self.sprint += random.sample(self.generate_state_dict()["Unseen"], self.sprint_length - len(self.sprint))
+        for i in self.sprint:
+            i.in_sprint = True
+
+    def generate_round(self):
+        self.active = random.sample(self.sprint, self.sprint_length)
             
 
 
@@ -63,8 +59,11 @@ def load_file(file_loc):
 def main():
     voc = Vocabulary()
     voc.update_sprint()
+    voc.generate_round()
     for i in voc.sprint:
         print(i.__dict__)
+    for i in voc.active:
+        print(i.original)
 
 if __name__ == "__main__":
     main()
