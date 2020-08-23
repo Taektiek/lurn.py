@@ -72,9 +72,26 @@ class Vocabulary():
 
 
     def ask_question(self, number):
+        """Asks the question using input()
+
+        Args:
+            number (int): the position in the array of the question
+
+        Returns:
+            str: returns the given answer
+        """
         return input(self.active[number].original + ': ')
          
     def check_answer(self, answer, given):
+        """Checks if the given answer is correct
+
+        Args:
+            answer (Object): The word object the question is based on
+            given (str): The string given by the user
+
+        Returns:
+            str: String for the user to let them know what happened
+        """
         if answer.translation.lower() == given.lower():
             answer.state = 'Seen'
             self.sprint.remove(answer)
