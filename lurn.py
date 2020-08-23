@@ -3,6 +3,7 @@
 
 import json
 import random
+import string
 
 class Word():
     
@@ -15,10 +16,10 @@ class Word():
 
 class Vocabulary():
 
-    def __init__(self):
-        self.file_loc = './wordsets/lasalud.json'
+    def __init__(self, file_loc, sprint_length=10):
+        self.file_loc = file_loc
 
-        self.sprint_length = 10
+        self.sprint_length = sprint_length
         self.words = self.create_words(json.loads(load_file(self.file_loc)))
 
         self.sprint = []
@@ -68,7 +69,18 @@ class Vocabulary():
         """Generates the round from the current sprint
         """
         self.active = random.sample(self.sprint, self.sprint_length)
-            
+
+
+    def ask_question(self, number):
+        return input(self.active[number].original + ': ')
+         
+    def check_answer(self, answer, given):
+        if answer.translation.lower() == given.lower():
+            answer.state = 'Seen'
+            self.sprint.remove(answer)
+            return 'Correct'
+        else:
+            return f'Wrong the correct answer was: {answer.translation}'
 
 
 def load_file(file_loc):
@@ -86,13 +98,14 @@ def load_file(file_loc):
 
 
 def main():
-    voc = Vocabulary()
-    voc.update_sprint()
-    voc.generate_round()
-    for i in voc.sprint:
-        print(i.__dict__)
-    for i in voc.active:
-        print(i.original)
+    voc = Vocabulary('./wordsets/lasalud.json', 3)
+    for i in range(100):
+        print(f'Round {i+1}')
+        voc.update_sprint()
+        voc.generate_round()
+        for i in range(voc.sprint_length):
+            voc.update_sprint()
+            print(voc.check_answer(voc.active[i], voc.ask_question(i)))
 
 if __name__ == "__main__":
     main()
