@@ -100,7 +100,7 @@ class Vocabulary():
         if answer.state == 'Unseen':
             if answer.translation.lower() == given.lower():
                 answer.state = 'Seen'
-                return f'Correct the word is now {answer.state}'
+                return f'Correct the word is now {answer.state.lower()}'
             else:
                 return f'Wrong the correct answer was: {answer.translation}'
         if answer.state == 'Seen' or answer.state == 'Known':
@@ -110,7 +110,7 @@ class Vocabulary():
                 else:
                     answer.state = 'Learned'
                     self.sprint.remove(answer)
-                return f'Correct the word is now {answer.state}'
+                return f'Correct the word is now {answer.state.lower()}'
             else:
                 return f'Wrong the correct answer was: {answer.original}'
 
