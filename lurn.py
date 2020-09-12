@@ -178,7 +178,10 @@ def clear():
 
 def main():
     clear()
-    voc = Vocabulary('./wordsets/english-dutch.json', 5)
+    
+    config = json.loads(load_file("./config.json"))
+
+    voc = Vocabulary(config["word_set_loc"], config["sprint_size"])
     for i in range(100):
         print(f'Round {i+1}')
         voc.update_sprint()
