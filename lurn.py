@@ -35,15 +35,14 @@ class Vocabulary():
 
     @staticmethod
     def create_words(words_dict):
-        """Creates word objects from dictionary
+        """Creates a list with objects for every word
 
         Args:
-            words_dict (dictionary): A dictionary with a list words with seperate dictionaries 
-            with an original and translation key
+            words_dict (dictionary): A dictionary with a key words which is a list of dictionaries with an original key and a translation key. 
 
         Returns:
-            list: A list of Word objects
-        """
+            list: A list which consists of word objects
+        """        
         out = []
 
         for i in words_dict["words"]:
@@ -52,11 +51,11 @@ class Vocabulary():
         return out
 
     def generate_state_dict(self):
-        """Generates a dictionary with lists of objects and each state as a key
+        """Creates a dictionary with lists for each state
 
         Returns:
-            dictionary: a dictionary with lists per state
-        """
+            dictionary: A dictionary with list for each state with the state name as key.
+        """        
         states = {}
         for i in self.words:
             if i.state in states:
@@ -67,18 +66,26 @@ class Vocabulary():
         return states
 
     def update_sprint(self):
-        """Updates the sprint to be have sprint_length as its length. Randomly picks Unseen word objects.
-        """
+        """Fills the sprint up to it's intended size
+        """        
         self.sprint += random.sample(self.generate_state_dict()["Unseen"], self.sprint_length - len(self.sprint))
         for i in self.sprint:
             i.in_sprint = True
 
     def generate_round(self):
-        """Generates the round from the current sprint
-        """
+        """Generates a round based on the sprint
+        """        
         self.active = random.sample(self.sprint, self.sprint_length)
 
     def generate_multiple_choice(self, word):
+        """Generates a multiple choice question
+
+        Args:
+            word (Word object): The word that needs to be learned
+
+        Returns:
+            Question object: A question object with a question and an answer
+        """        
         l = [i.translation for i in random.sample(self.words, 3)]
         l.append(word.translation)
         random.shuffle(l)
@@ -91,6 +98,14 @@ class Vocabulary():
         
 
     def generate_question(self, number):
+        """Generates a question based on the state
+
+        Args:
+            number (integer): Location in the current round
+
+        Returns:
+            Question object: Question object with a question and answer
+        """        
         if self.active[number].state == "Unseen":
             return self.generate_multiple_choice(self.active[number])
         elif self.active[number].state == "Seen":
@@ -99,26 +114,27 @@ class Vocabulary():
             return Question(f'{self.active[number].original}: ', self.active[number].translation, self.active[number])
 
     def ask_question(self, question):
-        """Asks the question using input()
+        """Asks the question
 
         Args:
-            number (int): the position in the array of the question
+            question (Question object): The question object with a question and an answer
 
         Returns:
-            str: returns the given answer
-        """
+            string: Given answer
+        """        
         return input(question.question)
 
     def check_answer(self, question, given, word):
         """Checks if the given answer is correct
 
         Args:
-            answer (Object): The word object the question is based on
-            given (str): The string given by the user
+            question (Question object): Object with question and answer
+            given (string): The answer that was given
+            word (Word object): The word the question was based on
 
         Returns:
-            str: String for the user to let them know what happened
-        """
+            string: Returns feedback string which is shown to the user
+        """        
         if word.state == 'Unseen':
             if question.answer.lower() == given.lower():
                 word.state = 'Seen'
@@ -138,19 +154,20 @@ class Vocabulary():
 
 
 def load_file(file_loc):
-    """Loads a file and returns the string
+    """Loads text file from location
 
     Args:
-        file_loc (string): Location of the file
+        file_loc (string): File location
 
     Returns:
-        string: contents of the file
-    """
+        string: Contents of text file
+    """    
     word_input = open(file_loc)
     return word_input.read()
 
 def clear(): 
-  
+    """Clears the terminal screen
+    """    
     # for windows 
     if name == 'nt': 
         _ = system('cls') 
