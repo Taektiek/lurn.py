@@ -3,7 +3,6 @@
 
 import json
 import random
-import string
 from os import system, name
 
 class Word():
@@ -56,7 +55,7 @@ class Vocabulary():
         Returns:
             dictionary: A dictionary with list for each state with the state name as key.
         """        
-        states = {}
+        states = {"Learned": []}
         for i in self.words:
             if i.state in states:
                 states[i.state].append(i)
@@ -67,8 +66,12 @@ class Vocabulary():
 
     def update_sprint(self):
         """Fills the sprint up to it's intended size
-        """        
-        self.sprint += random.sample(self.generate_state_dict()["Unseen"], self.sprint_length - len(self.sprint))
+        """
+        try:
+            self.sprint += random.sample(self.generate_state_dict()["Unseen"], self.sprint_length - len(self.sprint))
+        except:
+            pass
+
         for i in self.sprint:
             i.in_sprint = True
 
@@ -109,9 +112,9 @@ class Vocabulary():
         if self.active[number].state == "Unseen":
             return self.generate_multiple_choice(self.active[number])
         elif self.active[number].state == "Seen":
-            return Question(f'{self.active[number].translation}: ', self.active[number].original, self.active[number])
-        elif self.active[number].state == "Learned":
             return Question(f'{self.active[number].original}: ', self.active[number].translation, self.active[number])
+        elif self.active[number].state == "Known":
+            return Question(f'{self.active[number].translation}: ', self.active[number].original, self.active[number])
 
     def check_answer(self, question, given, word):
         """Checks if the given answer is correct
@@ -171,8 +174,12 @@ def main():
     config = json.loads(load_file("./config.json"))
 
     voc = Vocabulary(config["word_set_loc"], config["sprint_size"])
-    for i in range(100):
-        print(f'Round {i+1}')
+
+    round = 0
+
+    while len(voc.generate_state_dict()["Learned"]) < len(voc.words):
+        round += 1
+        print(f'Round {round}')
         voc.update_sprint()
         voc.generate_round()
         for i in range(voc.sprint_length):
@@ -180,6 +187,8 @@ def main():
             q = voc.generate_question(i)
             input(voc.check_answer(q, input(q.question), voc.active[i]))
             clear()
+
+    print('Gefeliciteerd! Je bent klaar!')
 
 
 if __name__ == "__main__":
