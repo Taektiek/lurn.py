@@ -94,9 +94,9 @@ class Vocabulary():
         if self.active[number].state == "Unseen":
             return self.generate_multiple_choice(self.active[number])
         elif self.active[number].state == "Seen":
-            return Question(self.active[number].translation, self.active[number].original, self.active[number])
+            return Question(f'{self.active[number].translation}: ', self.active[number].original, self.active[number])
         elif self.active[number].state == "Learned":
-            return Question(self.active[number].original, self.active[number].translation, self.active[number])
+            return Question(f'{self.active[number].original}: ', self.active[number].translation, self.active[number])
 
     def ask_question(self, question):
         """Asks the question using input()
@@ -160,17 +160,17 @@ def clear():
         _ = system('clear') 
 
 def main():
+    clear()
     voc = Vocabulary('./wordsets/english-dutch.json', 5)
-    print(voc.generate_multiple_choice(voc.words[0]).__dict__)
     for i in range(100):
         print(f'Round {i+1}')
         voc.update_sprint()
         voc.generate_round()
         for i in range(voc.sprint_length):
-            clear()
             voc.update_sprint()
             q = voc.generate_question(i)
             input(voc.check_answer(q, voc.ask_question(q), voc.active[i]))
+            clear()
 
 
 if __name__ == "__main__":
