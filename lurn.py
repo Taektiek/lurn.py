@@ -4,6 +4,7 @@
 import json
 import random
 import string
+from os import system, name
 
 class Word():
     
@@ -13,6 +14,13 @@ class Word():
 
         self.state = 'Unseen'
         self.in_sprint = False
+
+class Question():
+
+    def __init__(self, question, answer, word):
+        self.question = question
+        self.answer = answer
+        self.word = word
 
 class Vocabulary():
 
@@ -70,8 +78,27 @@ class Vocabulary():
         """
         self.active = random.sample(self.sprint, self.sprint_length)
 
+    def generate_multiple_choice(self, word):
+        l = [i.translation for i in random.sample(self.words, 3)]
+        l.append(word.translation)
+        random.shuffle(l)
+        s = f'{word.original}\n'
+        for i, j in enumerate(l):
+            s += f'{str(i+1)}: {j} '
+        answer = str(l.index(word.translation) + 1)
+        return Question(s, answer, word)
+        
+        
 
-    def ask_question(self, number):
+    def generate_question(self, number):
+        if self.active[number].state == "Unseen":
+            return self.generate_multiple_choice(self.active[number])
+        elif self.active[number].state == "Seen":
+            return Question(self.active[number].translation, self.active[number].original, self.active[number])
+        elif self.active[number].state == "Learned":
+            return Question(self.active[number].original, self.active[number].translation, self.active[number])
+
+    def ask_question(self, question):
         """Asks the question using input()
 
         Args:
@@ -80,14 +107,9 @@ class Vocabulary():
         Returns:
             str: returns the given answer
         """
-        if self.active[number].state == "Unseen":
-            return input(self.active[number].original + ': ')
-        elif self.active[number].state == "Seen":
-            return input(self.active[number].translation + ': ')
-        elif self.active[number].state == "Learned":
-            return input(self.active[number].translation + ': ')
-         
-    def check_answer(self, answer, given):
+        return input(question.question)
+
+    def check_answer(self, question, given, word):
         """Checks if the given answer is correct
 
         Args:
@@ -97,22 +119,22 @@ class Vocabulary():
         Returns:
             str: String for the user to let them know what happened
         """
-        if answer.state == 'Unseen':
-            if answer.translation.lower() == given.lower():
-                answer.state = 'Seen'
-                return f'Correct the word is now {answer.state.lower()}'
+        if word.state == 'Unseen':
+            if question.answer.lower() == given.lower():
+                word.state = 'Seen'
+                return f'Correct the word is now {word.state.lower()}'
             else:
-                return f'Wrong the correct answer was: {answer.translation}'
-        if answer.state == 'Seen' or answer.state == 'Known':
-            if answer.original.lower() == given.lower():
-                if answer.state == 'Seen':
-                    answer.state = 'Known'
+                return f'Wrong the correct answer was: {question.answer}'
+        if word.state == 'Seen' or word.state == 'Known':
+            if question.answer.lower() == given.lower():
+                if word.state == 'Seen':
+                    word.state = 'Known'
                 else:
-                    answer.state = 'Learned'
-                    self.sprint.remove(answer)
-                return f'Correct the word is now {answer.state.lower()}'
+                    word.state = 'Learned'
+                    self.sprint.remove(word)
+                return f'Correct the word is now {word.state.lower()}'
             else:
-                return f'Wrong the correct answer was: {answer.original}'
+                return f'Wrong the correct answer was: {word.original}'
 
 
 def load_file(file_loc):
@@ -127,17 +149,29 @@ def load_file(file_loc):
     word_input = open(file_loc)
     return word_input.read()
 
-
+def clear(): 
+  
+    # for windows 
+    if name == 'nt': 
+        _ = system('cls') 
+  
+    # for mac and linux(here, os.name is 'posix') 
+    else: 
+        _ = system('clear') 
 
 def main():
     voc = Vocabulary('./wordsets/english-dutch.json', 5)
+    print(voc.generate_multiple_choice(voc.words[0]).__dict__)
     for i in range(100):
         print(f'Round {i+1}')
         voc.update_sprint()
         voc.generate_round()
         for i in range(voc.sprint_length):
+            clear()
             voc.update_sprint()
-            print(voc.check_answer(voc.active[i], voc.ask_question(i)))
+            q = voc.generate_question(i)
+            input(voc.check_answer(q, voc.ask_question(q), voc.active[i]))
+
 
 if __name__ == "__main__":
     main()
