@@ -113,17 +113,6 @@ class Vocabulary():
         elif self.active[number].state == "Learned":
             return Question(f'{self.active[number].original}: ', self.active[number].translation, self.active[number])
 
-    def ask_question(self, question):
-        """Asks the question
-
-        Args:
-            question (Question object): The question object with a question and an answer
-
-        Returns:
-            string: Given answer
-        """        
-        return input(question.question)
-
     def check_answer(self, question, given, word):
         """Checks if the given answer is correct
 
@@ -189,7 +178,7 @@ def main():
         for i in range(voc.sprint_length):
             voc.update_sprint()
             q = voc.generate_question(i)
-            input(voc.check_answer(q, voc.ask_question(q), voc.active[i]))
+            input(voc.check_answer(q, input(q.question), voc.active[i]))
             clear()
 
 
