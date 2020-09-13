@@ -67,10 +67,13 @@ class Vocabulary():
     def update_sprint(self):
         """Fills the sprint up to it's intended size
         """
-        try:
-            self.sprint += random.sample(self.generate_state_dict()["Unseen"], self.sprint_length - len(self.sprint))
-        except:
-            pass
+        if "Unseen" in self.generate_state_dict():
+            self.sprint += random.sample(self.generate_state_dict()["Unseen"], min(round((self.sprint_length - len(self.sprint))/1.5), len(self.generate_state_dict()["Unseen"])))
+        if "Learned" in self.generate_state_dict():
+            for i in random.sample(self.generate_state_dict()["Learned"], min(self.sprint_length - len(self.sprint), len(self.generate_state_dict()["Learned"]))):
+                i.state = "Repeat"
+                self.sprint.append(i)
+        self.sprint += random.sample(self.generate_state_dict()["Unseen"], self.sprint_length - len(self.sprint))
 
         for i in self.sprint:
             i.in_sprint = True
@@ -115,6 +118,8 @@ class Vocabulary():
             return Question(f'{self.active[number].original}: ', self.active[number].translation, self.active[number])
         elif self.active[number].state == "Known":
             return Question(f'{self.active[number].translation}: ', self.active[number].original, self.active[number])
+        elif self.active[number].state == "Learned":
+            return Question(f'{self.active[number].translation}: ', self.active[number].original, self.active[number])
 
     def check_answer(self, question, given, word):
         """Checks if the given answer is correct
@@ -137,12 +142,15 @@ class Vocabulary():
             if question.answer.lower() == given.lower():
                 if word.state == 'Seen':
                     word.state = 'Known'
-                else:
+                elif word.state == 'Known':
+                    word.state = 'Learned'
+                    self.sprint.remove(word)
+                elif word.state == 'Repeat':
                     word.state = 'Learned'
                     self.sprint.remove(word)
                 return f'Correct the word is now {word.state.lower()}'
             else:
-                return f'Wrong the correct answer was: {word.original}'
+                return f'Wrong the correct answer was: {question.answer}'
 
 
 def load_file(file_loc):
